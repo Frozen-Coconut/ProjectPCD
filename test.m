@@ -21,10 +21,10 @@ Predict('12.jpg');
 Predict('13.jpg');
 Predict('14.jpg');
 Predict('15.jpg');
-Predict('sample1.jpg');
-Predict('sample2.jpg');
-Predict('sample3.jpg');
-Predict('sample4.jpg');
+Predict('16.jpg');
+Predict('17.jpg');
+Predict('18.jpg');
+Predict('19.jpg');
 
 function [Ihm, Ism, Ivm] = Predict(filename)
     % Membaca image dan mengubah image menjadi double antara 0 dan 1.
