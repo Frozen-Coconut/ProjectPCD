@@ -5,7 +5,7 @@ clear; clc;
 % maka akan semakin kecil nilai huenya. Sebaliknya, semakin mentah sebuah
 % pisang kepok, akan semakin besar nilai huenya.
 
-Predict('kucing1.jpg');
+Predict('1.jpg');
 
 function [Ihm, Ism, Ivm] = Predict(filename)
     % Membaca image dan mengubah image menjadi double antara 0 dan 1.
@@ -40,7 +40,7 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     % atau gambar yang terdeteksi oleh function NotBanana menunjukkan bahwa
     % gambar yang diberikan bukan merupakan pisang.
     if NotBanana(Ibw) || Ihm > 0.23 || Ihm < 0.05
-        label = 'bukan pisang';
+        label = 'bukan pisang / tidak valid';
     elseif Ihm > 0.14
         label = 'mentah';
     elseif Ihm > 0.13
