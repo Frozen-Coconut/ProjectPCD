@@ -5,26 +5,7 @@ clear; clc;
 % maka akan semakin kecil nilai huenya. Sebaliknya, semakin mentah sebuah
 % pisang kepok, akan semakin besar nilai huenya.
 
-Predict('0.jpg');
-Predict('1.jpg');
-Predict('2.jpg');
-Predict('3.jpg');
-Predict('4.jpg');
-Predict('5.jpg');
-Predict('6.jpg');
-Predict('7.jpg');
-Predict('8.jpg');
-Predict('9.jpg');
 Predict('10.jpg');
-Predict('11.jpg');
-Predict('12.jpg');
-Predict('13.jpg');
-Predict('14.jpg');
-Predict('15.jpg');
-Predict('16.jpg');
-Predict('17.jpg');
-Predict('18.jpg');
-Predict('19.jpg');
 
 function [Ihm, Ism, Ivm] = Predict(filename)
     % Membaca image dan mengubah image menjadi double antara 0 dan 1.
@@ -56,8 +37,9 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     
     % Memberikan label prediksi pada image. Diambil nilai Hue 0.23 sebagai
     % batas atas dan 0.05 sebagai batas bawah, nilai di luar batas tersebut
-    % menunjukkan bahwa gambar yang diberikan bukan merupakan pisang.
-    if Ihm > 0.23 || Ihm < 0.05
+    % atau gambar yang terdeteksi oleh function NotBanana menunjukkan bahwa
+    % gambar yang diberikan bukan merupakan pisang.
+    if Ihm > 0.23 || Ihm < 0.05 || NotBanana(Ibw)
         label = 'bukan pisang';
     elseif Ihm > 0.14
         label = 'mentah';
@@ -86,4 +68,11 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     nexttile;
     imshow(Iv);
     title(append('Value ', string(Ivm)));
+end
+
+function NotBanana = NotBanana(I)
+    % Melakukan inisialisasi boolean untuk return value
+    NotBanana = false;
+    
+    
 end
