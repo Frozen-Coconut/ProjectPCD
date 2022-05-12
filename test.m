@@ -5,7 +5,7 @@ clear; clc;
 % maka akan semakin kecil nilai huenya. Sebaliknya, semakin mentah sebuah
 % pisang kepok, akan semakin besar nilai huenya.
 
-Predict('10.jpg');
+Predict('kucing1.jpg');
 
 function [Ihm, Ism, Ivm] = Predict(filename)
     % Membaca image dan mengubah image menjadi double antara 0 dan 1.
@@ -39,7 +39,7 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     % batas atas dan 0.05 sebagai batas bawah, nilai di luar batas tersebut
     % atau gambar yang terdeteksi oleh function NotBanana menunjukkan bahwa
     % gambar yang diberikan bukan merupakan pisang.
-    if Ihm > 0.23 || Ihm < 0.05 || NotBanana(Ibw)
+    if NotBanana(Ibw) || Ihm > 0.23 || Ihm < 0.05
         label = 'bukan pisang';
     elseif Ihm > 0.14
         label = 'mentah';
@@ -70,9 +70,31 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     title(append('Value ', string(Ivm)));
 end
 
-function NotBanana = NotBanana(I)
+function NotBanana = NotBanana(Ibw)
     % Melakukan inisialisasi boolean untuk return value
     NotBanana = false;
     
+    % Ibw = edge(Ibw);
+    % Ibw = bwmorph(Ibw, 'bridge', Inf);
+    % Ibw = imfill(Ibw, [round(size(Ibw, 1) / 2), round(size(Ibw, 2) / 2)]);
+    % Ibw = bwmorph(Ibw, 'close', 10);
     
+    % Melakukan erosi dan dilasi pada image untuk menghilangkan celah
+    for c = 1:5
+        Ibw = imdilate(Ibw, [1 1 1; 1 1 1; 1 1 1]);
+    end
+    for c = 1:10
+        Ibw = imerode(Ibw, [1 1 1; 1 1 1; 1 1 1]);
+    end
+    
+    % Mengambil tulang dari image
+    Ibw = bwmorph(Ibw, 'skel', Inf);
+    
+    % Melabeli image yang sudah ditulangkan untuk menghitung jumlah pulau
+    Ibw = bwlabel(Ibw);
+    
+    % Melakukan pengecekan
+    if max(max(Ibw)) ~= 1
+        NotBanana = true;
+    end
 end
