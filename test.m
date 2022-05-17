@@ -56,19 +56,7 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     Ivm = mean2(Iv(Ih > 0));
     
     % coba Shape Detection
-    Ibwlb = bwlabel(Ibw);
-    s = max(max(Ibwlb));
-    
-    tulang = bwmorph(Ibw, 'skel', Inf);
-    bersih = bwmorph(tulang, 'spur', 20);
-    bersih = bwmorph(bersih, 'spur', 20);
-    
-    ujung = bwmorph(bersih, 'endpoints');
-    cabang = bwmorph(bersih, 'branchpoints');
-    
-    props = regionprops(Ibw, {'Area','BoundingBox', 'MinorAxisLength', 'MajorAxisLength'});
-    numObj = numel(props);
-  
+    Ibwlb = bwlabel(Ibw)
     
     % Memberikan label prediksi pada image. Diambil nilai Hue 0.23 sebagai
     % batas atas dan 0.05 sebagai batas bawah, nilai di luar batas tersebut
@@ -84,23 +72,6 @@ function [Ihm, Ism, Ivm] = Predict(filename)
         label = 'matang';
     else
         label = 'bukan pisang';
-        checkRegProp = 0;
-    end
-    
-    if checkRegProp == 1
-        largestIndex = 1;
-        for i = 1 : numObj
-           if props(i).Area == max([props.Area])
-               largestIndex = i;
-               picRatio = props(largestIndex).MajorAxisLength/props(largestIndex).MinorAxisLength;
-           end
-        end
-    end
-    
-    if checkRegProp == 1
-        if picRatio <3.5
-           label = 'bukan pisang'; 
-        end
     end
     
     % menampilkan hasil ke console
@@ -109,17 +80,6 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     figure('Name', append(filename, ' -> ', label));
     nexttile;
     imshow(I);
-    hold on;
-    if checkRegProp == 1 
-       rectangle('Position', props(largestIndex).BoundingBox, 'EdgeColor', 'r', 'LineWidth', 1);
-       disp(append('Bounding Box : ', string(props(largestIndex).BoundingBox(1)), ',' , string(props(largestIndex).BoundingBox(2)), ',' ,string(props(largestIndex).BoundingBox(3)), ',' ,string(props(largestIndex).BoundingBox(4)), ','));
-       disp(append('Area : ', string(props(largestIndex).Area)));
-       disp(append('Major Axis Length : ', string(props(largestIndex).MajorAxisLength)));
-       disp(append('Minor Axis Length : ', string(props(largestIndex).MinorAxisLength)));
-       disp(append('Ratio : ' , string(picRatio)));
-       disp(append('Largest Index : ', string(largestIndex), ' -> ', string(max([props.Area]))));
-       disp('');
-    end
     title('Original');
     nexttile;
     imshow(Ih);
@@ -132,19 +92,7 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     title(append('Value ', string(Ivm)));
     nexttile;
     imshow(Ibwlb);
-    title(append('Labeled : ', string(s)));
-    nexttile;
-    imshow(tulang);
-    title(append('tulang: ',string(sum(sum(tulang)))));
-    nexttile;
-    imshow(bersih);
-    title(append('bersih: ',string(sum(sum(bersih)))));
-    nexttile;
-    imshow(ujung);
-    title(append('ujung: ',string(sum(sum(ujung)))));
-    nexttile;
-    imshow(cabang);
-    title(append('cabang: ',string(sum(sum(cabang)))));
+    title('Black and White');
 end
 
 function NotBanana = NotBanana(Ibw)
