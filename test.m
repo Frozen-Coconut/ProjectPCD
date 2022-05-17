@@ -5,7 +5,6 @@ clear; clc;
 % maka akan semakin kecil nilai huenya. Sebaliknya, semakin mentah sebuah
 % pisang kepok, akan semakin besar nilai huenya.
 
-Predict('0.jpg');
 Predict('1.jpg');
 Predict('2.jpg');
 Predict('pir.jpg');
@@ -73,25 +72,16 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     
     % Memberikan label prediksi pada image. Diambil nilai Hue 0.23 sebagai
     % batas atas dan 0.05 sebagai batas bawah, nilai di luar batas tersebut
-    % menunjukkan bahwa gambar yang diberikan bukan merupakan pisang.
-    checkRegProp = 1;
-    if s < 50 
-        if sum(sum(bersih)) < 4000
-            if Ihm > 0.23 || Ihm < 0.05
-                label = 'bukan pisang';
-            elseif Ihm > 0.14
-                label = 'mentah';
-            elseif Ihm > 0.13
-                label = 'setengah matang';
-            elseif Ihm > 0.11
-                label = 'matang';
-            else
-                label = 'terlalu matang';
-            end
-        else
-           label = 'terlalu banyak pisang';
-           checkRegProp = 0;
-        end
+    % atau gambar yang terdeteksi oleh function NotBanana menunjukkan bahwa
+    % gambar yang diberikan bukan merupakan pisang.
+    if NotBanana(Ibw) || Ihm > 0.23 || Ihm < 0.05
+        label = 'bukan pisang / tidak valid';
+    elseif Ihm > 0.14
+        label = 'mentah';
+    elseif Ihm > 0.13
+        label = 'setengah matang';
+    elseif Ihm > 0.11
+        label = 'matang';
     else
         label = 'bukan pisang';
         checkRegProp = 0;
@@ -155,4 +145,33 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     nexttile;
     imshow(cabang);
     title(append('cabang: ',string(sum(sum(cabang)))));
+end
+
+function NotBanana = NotBanana(Ibw)
+    % Melakukan inisialisasi boolean untuk return value
+    NotBanana = false;
+    
+    % Ibw = edge(Ibw);
+    % Ibw = bwmorph(Ibw, 'bridge', Inf);
+    % Ibw = imfill(Ibw, [round(size(Ibw, 1) / 2), round(size(Ibw, 2) / 2)]);
+    % Ibw = bwmorph(Ibw, 'close', 10);
+    
+    % Melakukan erosi dan dilasi pada image untuk menghilangkan celah
+    for c = 1:5
+        Ibw = imdilate(Ibw, [1 1 1; 1 1 1; 1 1 1]);
+    end
+    for c = 1:10
+        Ibw = imerode(Ibw, [1 1 1; 1 1 1; 1 1 1]);
+    end
+    
+    % Mengambil tulang dari image
+    Ibw = bwmorph(Ibw, 'skel', Inf);
+    
+    % Melabeli image yang sudah ditulangkan untuk menghitung jumlah pulau
+    Ibw = bwlabel(Ibw);
+    
+    % Melakukan pengecekan
+    if max(max(Ibw)) ~= 1
+        NotBanana = true;
+    end
 end
