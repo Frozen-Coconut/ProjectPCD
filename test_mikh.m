@@ -5,7 +5,7 @@ clear; clc;
 % maka akan semakin kecil nilai huenya. Sebaliknya, semakin mentah sebuah
 % pisang kepok, akan semakin besar nilai huenya.
 
-Predict('semangka.jpg');
+Predict('7.jpg');
 function [Ihm, Ism, Ivm] = Predict(filename)
     % Membaca image dan mengubah image menjadi double antara 0 dan 1.
     I = im2double(imread(filename));
@@ -34,9 +34,7 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     Ism = mean2(Is(Ih > 0));
     Ivm = mean2(Iv(Ih > 0));
     
-    % coba Shape Detection
-    Ibwlb = bwlabel(Ibw);
-    s = max(max(Ibwlb));
+    
     
     %mengambil bentuk tulang dari gambar agar bisa melihat seberapa rumit
     %pembentuk dari benda pada gambar.
@@ -46,8 +44,12 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     
     %mengambil properties Area, BoundingBox, panjang dan lebar objek.
     props = regionprops(Ibw, {'Area','BoundingBox', 'MinorAxisLength', 'MajorAxisLength'});
-    numObj = numel(props);
   
+    % Mengambil banyak "pulau" dalam objek
+%     Ibwlb = bwlabel(Ibw);
+%     s = max(max(Ibwlb));
+    
+    numObj = numel(props);
     
     % Memberikan label prediksi pada image. Diambil nilai Hue 0.23 sebagai
     % batas atas dan 0.05 sebagai batas bawah, nilai di luar batas tersebut
@@ -118,6 +120,7 @@ function [Ihm, Ism, Ivm] = Predict(filename)
        disp(append('Minor Axis Length : ', string(props(largestIndex).MinorAxisLength)));
        disp(append('Ratio : ' , string(picRatio), ' -> inverted : ', string(1/picRatio)));
        disp(append('Largest Index : ', string(largestIndex), ' -> ', string(max([props.Area]))));
+       disp(append('objects : ', string(numObj),' <-> ', string(s)))
        disp('');
     end
     title('Original');
