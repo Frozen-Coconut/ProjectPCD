@@ -6,26 +6,6 @@ clear; clc;
 % pisang kepok, akan semakin besar nilai huenya.
 
 Predict('1.jpg');
-Predict('2.jpg');
-Predict('pir.jpg');
-Predict('4.jpg');
-% Predict('5.jpg');
-% Predict('6.jpg');
-% Predict('7.jpg');
-% Predict('8.jpg');
-% Predict('9.jpg');
-% Predict('10.jpg');
-% Predict('11.jpg');
-% Predict('12.jpg');
-% Predict('13.jpg');
-% Predict('14.jpg');
-% Predict('15.jpg');
-Predict('16.jpg');
-Predict('pisangbanyak1.jpg');
-Predict('pisangbanyak2.jpeg');
-Predict('pisangbanyak3.jpg');
-% Predict('kucing1.jpeg');
-% Predict('kucing2.jpg');
 
 function [Ihm, Ism, Ivm] = Predict(filename)
     % Membaca image dan mengubah image menjadi double antara 0 dan 1.
