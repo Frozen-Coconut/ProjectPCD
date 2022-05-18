@@ -5,7 +5,8 @@ clear; clc;
 % maka akan semakin kecil nilai huenya. Sebaliknya, semakin mentah sebuah
 % pisang kepok, akan semakin besar nilai huenya.
 
-Predict('7.jpg');
+Predict('gambar/1.jpg');
+
 function [Ihm, Ism, Ivm] = Predict(filename)
     % Membaca image dan mengubah image menjadi double antara 0 dan 1.
     I = im2double(imread(filename));
@@ -34,29 +35,26 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     Ism = mean2(Is(Ih > 0));
     Ivm = mean2(Iv(Ih > 0));
     
-    
-    
-    %mengambil bentuk tulang dari gambar agar bisa melihat seberapa rumit
-    %pembentuk dari benda pada gambar.
+    % Mengambil bentuk tulang dari gambar agar bisa melihat seberapa rumit
+    % pembentuk dari benda pada gambar.
     tulang = bwmorph(Ibw, 'skel', Inf);
     bersih = bwmorph(tulang, 'spur', 20);
     bersih = bwmorph(bersih, 'spur', 20);
     
-    %mengambil properties Area, BoundingBox, panjang dan lebar objek.
+    % Mengambil properties Area, BoundingBox, panjang, dan lebar objek.
     props = regionprops(Ibw, {'Area','BoundingBox', 'MinorAxisLength', 'MajorAxisLength'});
-  
-    % Mengambil banyak "pulau" dalam objek
-%     Ibwlb = bwlabel(Ibw);
-%     s = max(max(Ibwlb));
     
+    % Mengambil banyak "pulau" dalam objek
+    Ibwlb = bwlabel(Ibw);
+    s = max(max(Ibwlb));
     numObj = numel(props);
     
     % Memberikan label prediksi pada image. Diambil nilai Hue 0.23 sebagai
     % batas atas dan 0.05 sebagai batas bawah, nilai di luar batas tersebut
     % menunjukkan bahwa gambar yang diberikan bukan merupakan pisang.
-    % Selain dari Hue, kita juga mencari berdasarkan banyaknya pulau pulau
-    % berdasarkan Black and white nya, jika banyak pulau dibawah 50 maka
-    % dianggap sebagai pisang. Setelah itu melihat jumlah tulang pembentuk,
+    % Selain dari nilai Hue, juga dicek berdasarkan banyaknya pulau-pulau
+    % yang didapat dari Black and White, jika banyak pulau dibawah 50 maka
+    % dianggap sebagai pisang. Kemudian, melihat jumlah tulang pembentuk,
     % bahwa jika tulang pembentuk yang ditemukan < 4000, maka benda
     % tersebut termasuk pisang.
     checkRegProp = 1;
@@ -82,10 +80,9 @@ function [Ihm, Ism, Ivm] = Predict(filename)
         checkRegProp = 0;
     end
     
-    
-    %Disini kita mencari Area dari pulau yang terbesar agar kita bisa
-    %mendapatkan property dari benda yang menjadi pusat perhatian. Kita
-    %juga mencari ratio dari pisang. 
+    % Mencari Area dari pulau yang terbesar agar bisa didapatkan property
+    % dari benda yang menjadi pusat perhatian. Selain itu, juga dicari
+    % ratio dari benda tersebut.
     if checkRegProp == 1
         largestIndex = 1;
         for i = 1 : numObj
@@ -96,18 +93,19 @@ function [Ihm, Ism, Ivm] = Predict(filename)
         end
     end
     
-    %Ratio dari pisang jika < 2 maka bisa dikatakn bukan pisang karena
-    %pisang umumnya memiliki panjang yang lebih besar (lebih dari 2x lipat
-    %lebarnya).
+    % Ratio dari pisang jika < 2 maka bisa dikatakan bukan pisang karena
+    % pisang umumnya memiliki panjang yang lebih besar (lebih dari 2x lipat
+    % lebarnya).
     if checkRegProp == 1
-        if picRatio <2 && 1/picRatio < 2
+        if picRatio < 2 && 1/picRatio < 2
            label = 'gambar invalid'; 
         end
     end
     
-    % menampilkan hasil ke console
+    % Menampilkan hasil ke console
     disp(append(filename, ' HSV(', string(Ihm), ', ', string(Ism), ', ', string(Ivm), ') ', label));
-    % menampilkan hasil ke figure
+    
+    % Menampilkan hasil ke figure
     figure('Name', append(filename, ' -> ', label));
     nexttile;
     imshow(I);
