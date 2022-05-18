@@ -5,8 +5,7 @@ clear; clc;
 % maka akan semakin kecil nilai huenya. Sebaliknya, semakin mentah sebuah
 % pisang kepok, akan semakin besar nilai huenya.
 
-Predict('1.jpg');
-
+Predict('semangka.jpg');
 function [Ihm, Ism, Ivm] = Predict(filename)
     % Membaca image dan mengubah image menjadi double antara 0 dan 1.
     I = im2double(imread(filename));
@@ -39,13 +38,13 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     Ibwlb = bwlabel(Ibw);
     s = max(max(Ibwlb));
     
+    %mengambil bentuk tulang dari gambar agar bisa melihat seberapa rumit
+    %pembentuk dari benda pada gambar.
     tulang = bwmorph(Ibw, 'skel', Inf);
     bersih = bwmorph(tulang, 'spur', 20);
     bersih = bwmorph(bersih, 'spur', 20);
     
-    ujung = bwmorph(bersih, 'endpoints');
-    cabang = bwmorph(bersih, 'branchpoints');
-    
+    %mengambil properties Area, BoundingBox, panjang dan lebar objek.
     props = regionprops(Ibw, {'Area','BoundingBox', 'MinorAxisLength', 'MajorAxisLength'});
     numObj = numel(props);
   
@@ -53,11 +52,16 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     % Memberikan label prediksi pada image. Diambil nilai Hue 0.23 sebagai
     % batas atas dan 0.05 sebagai batas bawah, nilai di luar batas tersebut
     % menunjukkan bahwa gambar yang diberikan bukan merupakan pisang.
+    % Selain dari Hue, kita juga mencari berdasarkan banyaknya pulau pulau
+    % berdasarkan Black and white nya, jika banyak pulau dibawah 50 maka
+    % dianggap sebagai pisang. Setelah itu melihat jumlah tulang pembentuk,
+    % bahwa jika tulang pembentuk yang ditemukan < 4000, maka benda
+    % tersebut termasuk pisang.
     checkRegProp = 1;
     if s < 50 
         if sum(sum(bersih)) < 4000
-            if Ihm > 0.23 || Ihm < 0.05
-                label = 'bukan pisang';
+            if Ihm > 0.23 || Ihm < 0.005
+                label = 'gambar invalid';
             elseif Ihm > 0.14
                 label = 'mentah';
             elseif Ihm > 0.13
@@ -68,11 +72,18 @@ function [Ihm, Ism, Ivm] = Predict(filename)
                 label = 'terlalu matang';
             end
         else
-           label = 'terlalu banyak pisang';
+           label = 'gambar invalid';
            checkRegProp = 0;
         end
+    else
+        label = 'gambar invalid';
+        checkRegProp = 0;
     end
     
+    
+    %Disini kita mencari Area dari pulau yang terbesar agar kita bisa
+    %mendapatkan property dari benda yang menjadi pusat perhatian. Kita
+    %juga mencari ratio dari pisang. 
     if checkRegProp == 1
         largestIndex = 1;
         for i = 1 : numObj
@@ -83,9 +94,12 @@ function [Ihm, Ism, Ivm] = Predict(filename)
         end
     end
     
+    %Ratio dari pisang jika < 2 maka bisa dikatakn bukan pisang karena
+    %pisang umumnya memiliki panjang yang lebih besar (lebih dari 2x lipat
+    %lebarnya).
     if checkRegProp == 1
-        if picRatio <3.5
-           label = 'bukan pisang'; 
+        if picRatio <2 && 1/picRatio < 2
+           label = 'gambar invalid'; 
         end
     end
     
@@ -102,7 +116,7 @@ function [Ihm, Ism, Ivm] = Predict(filename)
        disp(append('Area : ', string(props(largestIndex).Area)));
        disp(append('Major Axis Length : ', string(props(largestIndex).MajorAxisLength)));
        disp(append('Minor Axis Length : ', string(props(largestIndex).MinorAxisLength)));
-       disp(append('Ratio : ' , string(picRatio)));
+       disp(append('Ratio : ' , string(picRatio), ' -> inverted : ', string(1/picRatio)));
        disp(append('Largest Index : ', string(largestIndex), ' -> ', string(max([props.Area]))));
        disp('');
     end
@@ -125,10 +139,4 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     nexttile;
     imshow(bersih);
     title(append('bersih: ',string(sum(sum(bersih)))));
-    nexttile;
-    imshow(ujung);
-    title(append('ujung: ',string(sum(sum(ujung)))));
-    nexttile;
-    imshow(cabang);
-    title(append('cabang: ',string(sum(sum(cabang)))));
 end
