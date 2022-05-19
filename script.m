@@ -59,7 +59,8 @@ function [Ihm, Ism, Ivm] = Predict(filename)
     % tersebut termasuk pisang.
     checkRegProp = 1;
     if s < 50 
-        if sum(sum(bersih)) < 4000
+        sumGambar = sum(sum(bersih));
+        if sumGambar < 4000 && sumGambar > 200
             if Ihm > 0.23 || Ihm < 0.005
                 label = 'gambar invalid';
             elseif Ihm > 0.14
